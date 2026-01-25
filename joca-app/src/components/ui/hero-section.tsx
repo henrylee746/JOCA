@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { InteractiveHoverButton } from "@/components/ui/interactive-hover-button";
 
@@ -7,19 +6,6 @@ export const HeroSection = () => {
     <div className="w-full">
       <main className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 pt-8 pb-12">
-          <div className="flex justify-center mb-6">
-            <Link
-              href=""
-              className="inline-flex items-center gap-2 border border-slate-200 dark:border-slate-700 rounded-full px-3 py-1 text-xs sm:text-sm font-medium hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors"
-            >
-              <span className="text-slate-600 dark:text-slate-300 inline">
-                Returning User? Login here
-              </span>
-
-              <ArrowRight className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-            </Link>
-          </div>
-
           <div className="text-center">
             <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl md:text-6xl lg:text-7xl mb-6">
               A Little Piece of Jamaica in the Nation’s Capital
