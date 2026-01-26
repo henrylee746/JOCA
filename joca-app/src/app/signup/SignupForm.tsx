@@ -27,7 +27,6 @@ const signupSchema = z
     firstName: z.string().min(2, "First name must be at least 2 characters"),
     lastName: z.string().min(2, "Last name must be at least 2 characters"),
     email: z.string().email("Invalid email address"),
-    phone: z.string().min(10, "Phone number must be at least 10 digits"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
@@ -45,7 +44,6 @@ export function SignupForm() {
       firstName: "",
       lastName: "",
       email: "",
-      phone: "",
       password: "",
       confirmPassword: "",
     },
@@ -113,24 +111,6 @@ export function SignupForm() {
                           <Input
                             type="email"
                             placeholder="you@example.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="tel"
-                            placeholder="613-555-0123"
                             {...field}
                           />
                         </FormControl>

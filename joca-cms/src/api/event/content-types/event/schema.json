@@ -23,15 +23,13 @@
       "type": "string",
       "required": true
     },
-    "isPublic": {
-      "type": "boolean"
-    },
     "time": {
       "type": "time",
       "required": true
     },
     "category": {
       "type": "enumeration",
+      "required": true,
       "enum": [
         "Culture",
         "Community ",

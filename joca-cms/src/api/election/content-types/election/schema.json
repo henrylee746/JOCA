@@ -32,14 +32,12 @@
     },
     "category": {
       "type": "enumeration",
+      "required": true,
       "enum": [
         "Executive",
         "Committee",
         "Referendum"
       ]
-    },
-    "isPublic": {
-      "type": "boolean"
     },
     "votingDateStart": {
       "type": "date",

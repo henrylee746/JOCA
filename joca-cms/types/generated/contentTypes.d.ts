@@ -445,13 +445,13 @@ export interface ApiElectionElection extends Struct.CollectionTypeSchema {
     candidates: Schema.Attribute.Relation<'manyToMany', 'api::member.member'>;
     category: Schema.Attribute.Enumeration<
       ['Executive', 'Committee', 'Referendum']
-    >;
+    > &
+      Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     date: Schema.Attribute.Date & Schema.Attribute.Required;
     description: Schema.Attribute.Text;
-    isPublic: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -483,13 +483,13 @@ export interface ApiEventEvent extends Struct.CollectionTypeSchema {
   attributes: {
     category: Schema.Attribute.Enumeration<
       ['Culture', 'Community ', 'Education']
-    >;
+    > &
+      Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     date: Schema.Attribute.Date & Schema.Attribute.Required;
     description: Schema.Attribute.Text;
-    isPublic: Schema.Attribute.Boolean;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::event.event'> &
       Schema.Attribute.Private;

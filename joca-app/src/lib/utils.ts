@@ -11,7 +11,6 @@ export const GET_EVENTS = gql`
     events {
       date
       description
-      isPublic
       location
       title
       category
@@ -30,7 +29,6 @@ export const GET_ELECTIONS = gql`
       location
       description
       category
-      isPublic
       votingDateStart
       votingDateEnd
       ballotUrl
@@ -54,4 +52,4 @@ export const formatTime = (timeStr: string) => {
   else if (hour > 12) hour -= 12;
 
   return `${hour}:${m} ${suffix}`;
-}
+};
