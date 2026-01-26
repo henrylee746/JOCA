@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "@/lib/auth-client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
@@ -40,6 +40,7 @@ type CategoryFilter = (typeof categories)[number];
 export default function ElectionsPage() {
   const router = useRouter();
   const { data: session, isPending } = useSession();
+  const [isMounted, setIsMounted] = useState(false);
 
   const [query, setQuery] = React.useState("");
   const [activeCategory, setActiveCategory] =
@@ -47,11 +48,16 @@ export default function ElectionsPage() {
 
   const { loading, error, data } = useQuery<GetElectionsData>(GET_ELECTIONS);
 
+  // Wait for client-side hydration to complete
   useEffect(() => {
-    if (!isPending && !session?.user) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !isPending && !session?.user) {
       router.push("/signup");
     }
-  }, [isPending, session, router]);
+  }, [isMounted, isPending, session, router]);
 
   const filteredElections = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -67,13 +73,21 @@ export default function ElectionsPage() {
     });
   }, [query, activeCategory, data]);
 
-  // Handle loading and auth states AFTER all hooks
-  if (isPending) {
-    return <p className="text-center mt-8 text-white">Loading...</p>;
+  // Show loading state until hydration is complete
+  if (!isMounted || isPending) {
+    return (
+      <div className="w-full h-full flex items-center justify-center p-8">
+        <p className="text-center text-muted-foreground">Loading...</p>
+      </div>
+    );
   }
 
   if (!session?.user) {
-    return <p className="text-center mt-8 text-white">Redirecting...</p>;
+    return (
+      <div className="w-full h-full flex items-center justify-center p-8">
+        <p className="text-center text-muted-foreground">Redirecting...</p>
+      </div>
+    );
   }
 
   return (

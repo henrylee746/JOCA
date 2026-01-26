@@ -65,9 +65,7 @@ export function LoginForm() {
         return;
       }
 
-      // Redirect to elections page on successful login
-      router.push("/elections");
-      router.refresh();
+      router.push("/");
     } catch (err) {
       setError("An unexpected error occurred");
       setIsLoading(false);
