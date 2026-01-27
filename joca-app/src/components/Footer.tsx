@@ -43,13 +43,10 @@ const Footer = () => {
           JOCA - Jamaican Ottawa Community Association
         </span>
         <div className="flex gap-2">
-          <Link href="#">
+          <Link href="https://www.facebook.com/jamcottawa">
             <FaFacebook size={25} />
           </Link>
-          <Link href="#">
-            <FaXTwitter size={25} />
-          </Link>
-          <Link href="#">
+          <Link href="https://www.instagram.com/jamcottawa/">
             <FaInstagram size={25} />
           </Link>
         </div>
@@ -65,9 +62,10 @@ const Footer = () => {
 
           <NavigationMenuItem className="flex flex-col items-center gap-2 ">
             <Label className="font-bold py-2 px-4">Contact</Label>
-            <FooterLink href="/"> joca@email.com</FooterLink>
-            <FooterLink href="/"> (123)-456-7890</FooterLink>
-            <FooterLink href="/"> 123 Bank Street, Ottawa</FooterLink>
+            <FooterLink href="mailto:jamaicanottawaassnn@yahoo.ca">jamaicanottawaassnn@yahoo.ca</FooterLink>
+            <FooterLink href="tel:6135239085"> 613-523-9085
+            </FooterLink>
+            <FooterLink href="https://www.google.com/maps/place/404+McArthur+Ave.,+Ottawa,+ON+K1K+1G7/@45.4319279,-75.6516939,17z/data=!3m1!4b1!4m5!3m4!1s0x4cce0566f471709b:0xe33cb508ce8ea425!8m2!3d45.4319279!4d-75.6491243?entry=ttu&g_ep=EgoyMDI2MDEyMS4wIKXMDSoASAFQAw%3D%3D">404 McArthur Ave, Ottawa</FooterLink>
           </NavigationMenuItem>
         </NavigationMenuList>
       </NavigationMenu>
