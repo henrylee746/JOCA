@@ -4,13 +4,12 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Bell, CalendarDays, Camera, Clock, MapPin } from "lucide-react";
+import { Bell, Bookmark, BookmarkCheck, CalendarDays, Camera, Clock, MapPin } from "lucide-react";
 import { ClientDate } from "@/app/events/clientDate";
 import {
   Dialog,
@@ -83,6 +82,8 @@ export function EventCard({ event }: { event: EventItem }) {
                 onClick={onSave}
                 variant="outline"
               >
+
+                <Bookmark className="h-4 w-4" />
                 Save
               </Button>
             </div>
