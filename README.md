@@ -6,14 +6,14 @@
 
 _A vibrant organization celebrating Jamaican culture and strengthening community ties in Ottawa_
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![Strapi](https://img.shields.io/badge/Strapi-5-4945FF?style=for-the-badge&logo=strapi)](https://strapi.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
 
 <img src="joca-app/public/logo.png" alt="JOCA Logo" width="200"/>
 
-[🌐 Website](#) • [📧 Contact](#) • [🤝 Join Us](#join-us)
+[🌐 Website](#) • [📧 Contact](#)
 
 ---
 
@@ -88,6 +88,8 @@ JOCA/
 └── 📚 docs/              # Architecture Decision Records (ADRs)
 ```
 
+<!-- No need to display unless we
+need to support feature handoff to other devs
 ---
 
 ## 🛠️ Getting Started
@@ -179,8 +181,8 @@ ADMIN_JWT_SECRET="random-string"
 TRANSFER_TOKEN_SALT="random-string"
 JWT_SECRET="random-string"
 ```
-
 ---
+-->
 
 ## 📖 Key Features
 
