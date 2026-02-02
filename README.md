@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🇯🇲 JOCA
+# 🇯🇲 JOCA (Lead Developer Role)
 
 ### **Jamaican Ottawa Community Association**
 
