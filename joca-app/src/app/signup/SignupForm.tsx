@@ -44,6 +44,7 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export function SignupForm() {
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -58,7 +59,10 @@ export function SignupForm() {
   });
 
   const router = useRouter();
+
+
   async function onSubmit(values: SignupFormValues) {
+
 
     console.log("Submitted values:", values);
     await signUp.email({
@@ -68,7 +72,7 @@ export function SignupForm() {
     }, {
       onRequest: () => {
         setIsLoading(true);
-        toast.loading("Signing up...");
+        setError(null);
       },
       onSuccess: () => {
         setIsLoading(false);
@@ -79,8 +83,7 @@ export function SignupForm() {
       },
       onError: (ctx: any) => {
         setIsLoading(false);
-        toast.error(ctx?.error?.message || "Signup failed");
-
+        setError(ctx?.error?.message || "Signup failed");
       },
     });
   }
@@ -100,6 +103,14 @@ export function SignupForm() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="w-full space-y-6"
               >
+
+                {/* Error message */}
+                {error && (
+                  <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-md">
+                    {error}
+                  </div>
+                )}
+
                 {/* Personal Information Section */}
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

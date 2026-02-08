@@ -24,11 +24,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import Link from "next/link";
+import { toast } from "sonner";
 
 //handleSubmit validates the form using this schema
 const loginSchema = z.object({
   email: z.email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 6 characters"),
 });
 
 // Infers types based on schema so no external type declaration necessary
@@ -50,26 +51,25 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginFormValues) {
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await signIn.email({
-        email: values.email,
-        password: values.password,
-      });
-
-      if (result.error) {
-        setError(result.error.message || "Failed to sign in");
+    await signIn.email({
+      email: values.email,
+      password: values.password,
+    }, {
+      onRequest: () => {
+        setIsLoading(true);
+        setError(null);
+      },
+      onSuccess: () => {
         setIsLoading(false);
-        return;
-      }
+        toast.success("Signed in successfully");
+        router.push("/");
+      },
+      onError: (ctx: any) => {
+        setIsLoading(false);
+        setError(ctx?.error?.message || "Failed to sign in");
+      },
+    });
 
-      router.push("/");
-    } catch (err) {
-      setError("An unexpected error occurred");
-      setIsLoading(false);
-    }
   }
   return (
     <div className="font-sans flex flex-col items-center  justify-center gap-16">
