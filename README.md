@@ -41,7 +41,6 @@ We aim to **preserve and share Jamaican heritage** while fostering collaboration
 | **Deployment**     | Vercel (Frontend) • Strapi Cloud (CMS) • Prisma Postgres (DB) |
 
 </div>
----
 
 ## 📄 License
 
