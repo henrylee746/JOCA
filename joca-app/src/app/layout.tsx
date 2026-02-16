@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "JOCA",
-  description: "Jamaican Ottawa Community Association",
+  title: "Jamaican Ottawa Community Association",
+  description: "A Little Piece of Jamaica in the Nation’s Capital of Canada, Ottawa",
 };
 
 export default function RootLayout({

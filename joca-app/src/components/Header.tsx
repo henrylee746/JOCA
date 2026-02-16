@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CreditCard, Bell, LogOut } from "lucide-react";
 
+
 const Header = () => {
   const { data: session, isPending } = useSession();
   const [isMounted, setIsMounted] = useState(false);
@@ -110,7 +111,7 @@ const Header = () => {
                 className="relative h-9 w-9 rounded-full"
               >
                 {(session.user as { image?: string })?.image ? (
-                  <img
+                  <Image
                     src={(session.user as { image: string }).image}
                     alt=""
                     className="h-9 w-9 rounded-full object-cover"
