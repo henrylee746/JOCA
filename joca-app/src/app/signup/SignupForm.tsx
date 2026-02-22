@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/form";
 
 import { useRouter } from "next/navigation";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { useState } from "react";
 
@@ -60,32 +60,31 @@ export function SignupForm() {
 
   const router = useRouter();
 
-
   async function onSubmit(values: SignupFormValues) {
-
-
-    console.log("Submitted values:", values);
-    await signUp.email({
-      email: values.email, // user email address
-      password: values.password, // user password -> min 8 characters by default
-      name: values.firstName + " " + values.lastName, // user display name
-    }, {
-      onRequest: () => {
-        setIsLoading(true);
-        setError(null);
+    await signUp.email(
+      {
+        email: values.email, // user email address
+        password: values.password, // user password -> min 8 characters by default
+        name: values.firstName + " " + values.lastName, // user display name
       },
-      onSuccess: () => {
-        setIsLoading(false);
-        toast.success("Account created!");
+      {
+        onRequest: () => {
+          setIsLoading(true);
+          setError(null);
+        },
+        onSuccess: () => {
+          setIsLoading(false);
+          toast.success("Account created!");
 
-        // redirect to home page after a short delay
-        setTimeout(() => router.push("/"), 500);
+          // redirect to home page after a short delay
+          setTimeout(() => router.push("/"), 500);
+        },
+        onError: (ctx: any) => {
+          setIsLoading(false);
+          setError(ctx?.error?.message || "Signup failed");
+        },
       },
-      onError: (ctx: any) => {
-        setIsLoading(false);
-        setError(ctx?.error?.message || "Signup failed");
-      },
-    });
+    );
   }
 
   return (
@@ -103,7 +102,6 @@ export function SignupForm() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="w-full space-y-6"
               >
-
                 {/* Error message */}
                 {error && (
                   <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-900 rounded-md">
@@ -187,10 +185,7 @@ export function SignupForm() {
                         <FormItem>
                           <FormLabel>Password</FormLabel>
                           <FormControl>
-                            <Input
-                              type="password"
-                              {...field}
-                            />
+                            <Input type="password" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -204,10 +199,7 @@ export function SignupForm() {
                         <FormItem>
                           <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
-                            <Input
-                              type="password"
-                              {...field}
-                            />
+                            <Input type="password" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -217,7 +209,11 @@ export function SignupForm() {
                 </div>
 
                 {/* Submit button */}
-                <Button type="submit" className="w-full hover:cursor-pointer" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  className="w-full hover:cursor-pointer"
+                  disabled={isLoading}
+                >
                   {isLoading ? "Signing up..." : "Create Account"}
                 </Button>
               </form>

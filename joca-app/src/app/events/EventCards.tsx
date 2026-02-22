@@ -22,7 +22,6 @@ export function EventCards() {
     React.useState<CategoryFilter>("All");
 
   const { loading, error, data } = useQuery<GetEventsData>(GET_EVENTS);
-  console.log(data);
 
   const filteredEvents = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();

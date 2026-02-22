@@ -33,12 +33,7 @@ export function EventCard({ event }: { event: Event }) {
   const [open, setOpen] = React.useState(false);
 
   const handleViewDetails = () => {
-    console.log("view details");
     setOpen(true);
-  };
-
-  const onSave = () => {
-    console.log("save");
   };
 
   return (
@@ -85,7 +80,7 @@ export function EventCard({ event }: { event: Event }) {
               <Button
                 className="hover:cursor-pointer"
                 size="sm"
-                onClick={onSave}
+                onClick={() => {}}
                 variant="outline"
               >
                 <Bookmark className="h-4 w-4" />
