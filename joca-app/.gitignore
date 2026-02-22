@@ -49,3 +49,7 @@ next-env.d.ts
 # Claude
 CLAUDE.local.md
 .claude
+
+
+#Playwright
+.playwright-mcp/

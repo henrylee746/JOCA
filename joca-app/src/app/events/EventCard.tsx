@@ -9,7 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Bell, Bookmark, BookmarkCheck, CalendarDays, Camera, Clock, MapPin } from "lucide-react";
+import {
+  Bell,
+  Bookmark,
+  BookmarkCheck,
+  CalendarDays,
+  Camera,
+  Clock,
+  MapPin,
+} from "lucide-react";
 import { ClientDate } from "@/app/events/clientDate";
 import {
   Dialog,
@@ -18,19 +26,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
-import { EventItem } from "./EventCards";
+import { Event } from "@/lib/types";
 import { formatTime } from "@/lib/utils";
 
-export function EventCard({ event }: { event: EventItem }) {
+export function EventCard({ event }: { event: Event }) {
   const [open, setOpen] = React.useState(false);
 
   const handleViewDetails = () => {
-    console.log("view details");
     setOpen(true);
-  };
-
-  const onSave = () => {
-    console.log("save");
   };
 
   return (
@@ -55,7 +58,6 @@ export function EventCard({ event }: { event: EventItem }) {
           </CardDescription>
         </CardHeader>
 
-
         {/* Footer stays at bottom */}
         <CardFooter className="mt-auto">
           <div className="flex flex-wrap gap-6 justify-between w-full">
@@ -72,17 +74,15 @@ export function EventCard({ event }: { event: EventItem }) {
                 className="hover:cursor-pointer"
                 size="sm"
                 onClick={handleViewDetails}
-
               >
                 View details
               </Button>
               <Button
                 className="hover:cursor-pointer"
                 size="sm"
-                onClick={onSave}
+                onClick={() => {}}
                 variant="outline"
               >
-
                 <Bookmark className="h-4 w-4" />
                 Save
               </Button>
@@ -109,9 +109,7 @@ export function EventCard({ event }: { event: EventItem }) {
           </DialogHeader>
 
           <div className="space-y-4">
-            <p>
-              {event.description}
-            </p>
+            <p>{event.description}</p>
             <section className="flex flex-col">
               <div className="grid grid-cols-[32%_1fr] items-center">
                 <p>Location:</p>
@@ -134,7 +132,7 @@ export function EventCard({ event }: { event: EventItem }) {
               <Button className="flex-1">
                 {" "}
                 <CalendarDays />
-                Add to Calender
+                Add to Calendar
               </Button>
               <Button className="flex-1">
                 <Camera />

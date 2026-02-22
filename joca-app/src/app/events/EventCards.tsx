@@ -4,23 +4,13 @@ import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@apollo/client/react";
-import { GET_EVENTS } from "@/lib/utils";
+import { GET_EVENTS } from "@/lib/queries";
 import { EventCard } from "./EventCard";
 import Loading from "../loading";
-
-export type EventItem = {
-  id: string;
-  title: string;
-  date: string; // ISO date (YYYY-MM-DD)
-  time: string; // e.g. 6:00 PM
-  location: string;
-  description: string;
-  category: "Culture" | "Community" | "Education";
-  isPublic: boolean;
-};
+import { Event } from "@/lib/types";
 
 export interface GetEventsData {
-  events: EventItem[];
+  events: Event[];
 }
 
 const categories = ["All", "Culture", "Community", "Education"] as const;
@@ -32,7 +22,6 @@ export function EventCards() {
     React.useState<CategoryFilter>("All");
 
   const { loading, error, data } = useQuery<GetEventsData>(GET_EVENTS);
-  console.log(data);
 
   const filteredEvents = React.useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -78,10 +67,14 @@ export function EventCards() {
 
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 min-h-64">
         {error ? (
-          <p>Error: {error.message}</p>
+          <p className="text-muted-foreground">
+            {error instanceof Error
+              ? error.message
+              : "Unable to load events. Please try again."}
+          </p>
         ) : (
-          filteredEvents?.map((event, index) => (
-            <EventCard event={event} key={index} />
+          filteredEvents?.map((event: Event) => (
+            <EventCard event={event} key={event.documentId} />
           ))
         )}
       </section>

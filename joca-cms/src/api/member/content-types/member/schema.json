@@ -21,6 +21,11 @@
       "maxLength": 50,
       "required": true
     },
+    "email": {
+      "type": "email",
+      "required": true,
+      "unique": true
+    },
     "phoneNumber": {
       "type": "string",
       "minLength": 10,
@@ -32,11 +37,11 @@
       "target": "plugin::users-permissions.user",
       "mappedBy": "member"
     },
-    "elections": {
+    "candidate": {
       "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::election.election",
-      "mappedBy": "candidates"
+      "relation": "oneToOne",
+      "target": "api::candidate.candidate",
+      "mappedBy": "member"
     }
   }
 }
