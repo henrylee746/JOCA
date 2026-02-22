@@ -132,7 +132,7 @@ export function EventCard({ event }: { event: Event }) {
               <Button className="flex-1">
                 {" "}
                 <CalendarDays />
-                Add to Calender
+                Add to Calendar
               </Button>
               <Button className="flex-1">
                 <Camera />

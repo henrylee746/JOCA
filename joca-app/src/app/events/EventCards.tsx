@@ -69,8 +69,8 @@ export function EventCards() {
         {error ? (
           <p>Error: {error.message}</p>
         ) : (
-          filteredEvents?.map((event, index) => (
-            <EventCard event={event} key={index} />
+          filteredEvents?.map((event: Event) => (
+            <EventCard event={event} key={event.documentId} />
           ))
         )}
       </section>
