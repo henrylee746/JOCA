@@ -67,7 +67,11 @@ export function EventCards() {
 
       <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 min-h-64">
         {error ? (
-          <p>Error: {error.message}</p>
+          <p className="text-muted-foreground">
+            {error instanceof Error
+              ? error.message
+              : "Unable to load events. Please try again."}
+          </p>
         ) : (
           filteredEvents?.map((event: Event) => (
             <EventCard event={event} key={event.documentId} />

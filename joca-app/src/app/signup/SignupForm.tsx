@@ -77,7 +77,7 @@ export function SignupForm() {
           toast.success("Account created!");
 
           // redirect to home page after a short delay
-          setTimeout(() => router.push("/"), 500);
+          setTimeout(() => router.push("/payment"), 500);
         },
         onError: (ctx: any) => {
           setIsLoading(false);

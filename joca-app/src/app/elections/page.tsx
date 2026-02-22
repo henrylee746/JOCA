@@ -107,7 +107,11 @@ export default function ElectionsPage() {
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 min-h-64">
         {error ? (
-          <p className="text-muted-foreground">Error: {error.message}</p>
+          <p className="text-muted-foreground">
+            {error instanceof Error
+              ? error.message
+              : "Unable to load elections. Please try again."}
+          </p>
         ) : loading ? (
           <p className="text-muted-foreground">Loading elections...</p>
         ) : filteredElections?.length === 0 ? (

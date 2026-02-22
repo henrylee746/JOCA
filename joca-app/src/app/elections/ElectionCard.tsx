@@ -28,7 +28,6 @@ import {
   Field,
   FieldContent,
   FieldLabel,
-  FieldDescription,
   FieldTitle,
 } from "@/components/ui/field";
 import { toast } from "sonner";
@@ -55,7 +54,9 @@ export default function ElectionCard({ election }: { election: Election }) {
       setOpen(false);
       toast.success("Vote submitted successfully");
     } catch (error) {
-      toast.error("Failed to submit vote");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to submit vote.",
+      );
     }
   };
 

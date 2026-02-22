@@ -30,6 +30,7 @@ export type Member = {
   documentId: string;
   firstName: string;
   lastName: string;
+  email: string;
   phoneNumber?: string;
   user?: User;
   candidate?: Candidate;

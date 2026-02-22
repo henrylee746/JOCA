@@ -39,20 +39,19 @@ export default function PaymentPage() {
         session.user.id,
         session.user.email,
       );
-      // Redirect to Stripe Checkout
       if (result?.url) {
         window.location.href = result.url;
       } else {
-        toast.error("No checkout URL returned");
+        setIsLoading(false);
+        toast.error("No checkout URL returned. Please try again.");
       }
     } catch (error) {
       setIsLoading(false);
-      toast.error("Failed to initiate payment. Please try again.");
-      if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("Failed to initiate payment. Please try again.");
-      }
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to initiate payment. Please try again.",
+      );
     }
   };
 
