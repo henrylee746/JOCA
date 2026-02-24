@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { EmailVerificationPage } from "./EmailVerificationPage";
 
 import {
   Form,
@@ -22,10 +23,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const signupSchema = z
   .object({
@@ -46,6 +47,11 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 export function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEmailVerificationPageVisible, setIsEmailVerificationPageVisible] =
+    useState(false);
+
+  const router = useRouter();
+
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
@@ -58,14 +64,13 @@ export function SignupForm() {
     },
   });
 
-  const router = useRouter();
-
   async function onSubmit(values: SignupFormValues) {
     await signUp.email(
       {
-        email: values.email, // user email address
-        password: values.password, // user password -> min 8 characters by default
-        name: values.firstName + " " + values.lastName, // user display name
+        email: values.email,
+        password: values.password,
+        name: values.firstName + " " + values.lastName,
+        callbackURL: "/payment",
       },
       {
         onRequest: () => {
@@ -75,15 +80,29 @@ export function SignupForm() {
         onSuccess: () => {
           setIsLoading(false);
           toast.success("Account created!");
-
-          // redirect to home page after a short delay
-          setTimeout(() => router.push("/payment"), 500);
+          if (process.env.NODE_ENV === "development") {
+            router.push("/payment");
+          } else {
+            setIsEmailVerificationPageVisible(true);
+          }
         },
         onError: (ctx: any) => {
           setIsLoading(false);
           setError(ctx?.error?.message || "Signup failed");
         },
       },
+    );
+  }
+
+  if (
+    isEmailVerificationPageVisible &&
+    process.env.NODE_ENV !== "development"
+  ) {
+    return (
+      <EmailVerificationPage
+        name={form.getValues("firstName")}
+        email={form.getValues("email")}
+      />
     );
   }
 
