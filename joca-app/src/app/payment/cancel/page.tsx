@@ -11,7 +11,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const PaymentCancelPage = async () => {
+export default async function PaymentCancelPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -42,4 +42,4 @@ export const PaymentCancelPage = async () => {
       </Card>
     </div>
   );
-};
+}

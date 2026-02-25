@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSession } from "@/lib/auth-client";
 
-export const PaymentSuccessPage = () => {
+export default function PaymentSuccessPage() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -77,4 +77,4 @@ export const PaymentSuccessPage = () => {
       </Card>
     </div>
   );
-};
+}
