@@ -1,12 +1,22 @@
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useSession } from "@/lib/auth-client";
+import { NotLoggedIn } from "@/components/NotLoggedIn";
+import Loading from "../../loading";
 
 export default function PaymentSuccessPage() {
+  const { data: session, isPending } = useSession();
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
   const [isVerifying, setIsVerifying] = useState(true);
@@ -20,6 +30,12 @@ export default function PaymentSuccessPage() {
 
     return () => clearTimeout(timer);
   }, [sessionId]);
+
+  if (isPending) return <Loading />;
+
+  //TODO: Check if the user already activated their membership
+  //TODO: Add loading state as part of conditional (!isPending) if still needed after webhook verification
+  if (!session?.user) return <NotLoggedIn />;
 
   return (
     <div className="container mx-auto p-8 max-w-2xl">
@@ -36,7 +52,8 @@ export default function PaymentSuccessPage() {
           ) : (
             <>
               <p className="text-sm text-muted-foreground">
-                Your payment has been processed successfully. Your membership status will be updated shortly.
+                Your payment has been processed successfully. Your membership
+                status will be updated shortly.
               </p>
               {sessionId && (
                 <p className="text-xs text-muted-foreground">

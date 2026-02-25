@@ -13,6 +13,7 @@ import { createCheckoutSession } from "@/lib/checkout";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Loading from "../loading";
 
 export default function PaymentPage() {
   const { data: session, isPending } = useSession();
@@ -20,51 +21,36 @@ export default function PaymentPage() {
   const router = useRouter();
 
   const handlePayment = async () => {
-    if (!session?.user) {
-      router.push("/login");
-      return;
-    }
-
-    if (!session.user.email) {
+    if (!session?.user?.email) {
       toast.error(
         "No email address is associated with your account. Please update your profile before making a payment.",
       );
-      setIsLoading(false);
       return;
     }
     setIsLoading(true);
-
     try {
       const result = await createCheckoutSession(
         session.user.id,
         session.user.email,
       );
+      // Redirect to Stripe Checkout
       if (result?.url) {
         window.location.href = result.url;
       } else {
+        toast.error("No checkout URL returned");
         setIsLoading(false);
-        toast.error("No checkout URL returned. Please try again.");
+        return;
       }
     } catch (error) {
+      console.error("Payment error:", error);
       setIsLoading(false);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to initiate payment. Please try again.",
-      );
+      toast.error("Failed to initiate payment. Please try again.");
     }
   };
 
-  if (isPending) {
-    return (
-      <div className="container mx-auto p-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
+  if (isPending) return <Loading />;
 
+  //TODO: Eventually we also want to check if the user already activated their membership
   if (!session?.user) {
     return (
       <div className="container mx-auto p-8">
@@ -72,13 +58,36 @@ export default function PaymentPage() {
           <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Authentication Required</CardTitle>
-              <CardDescription>Please log in to make a payment</CardDescription>
+              <CardDescription>
+                Please log in to start your membership
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <Button onClick={() => router.push("/login")} className="w-full">
-                Go to Login
+                Log In
               </Button>
             </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (
+    !session?.user?.emailVerified &&
+    process.env.NODE_ENV !== "development" &&
+    !isPending
+  ) {
+    return (
+      <div className="container mx-auto p-8 max-w-2xl">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>Email Verification Required</CardTitle>
+              <CardDescription>
+                Please verify your email address to make a payment
+              </CardDescription>
+            </CardHeader>
           </Card>
         </div>
       </div>
