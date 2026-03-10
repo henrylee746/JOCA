@@ -5,8 +5,6 @@ import { ApolloProvider } from "@apollo/client/react";
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 
 const apolloClient = new ApolloClient({
-  //Once in production, change to the production URL
-  //Should be in .env
   link: new HttpLink({
     uri:
       process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL ||
