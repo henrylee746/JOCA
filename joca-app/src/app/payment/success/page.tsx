@@ -30,9 +30,7 @@ export default async function PaymentSuccessPage({
     try {
       const checkoutSession =
         await stripe.checkout.sessions.retrieve(session_id);
-      const isPaid =
-        checkoutSession.payment_status === "paid" ||
-        checkoutSession.status === "complete";
+      const isPaid = checkoutSession.payment_status === "paid";
       const belongsToUser =
         checkoutSession.metadata?.userId === authSession.user.id;
 
