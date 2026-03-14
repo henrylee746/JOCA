@@ -23,7 +23,10 @@ export function HomePage() {
         <FlippingCard
           className="min-h-[425px]"
           frontContent={
-            <div className="flex p-4 flex-col justify-start gap-4 m-4 h-full overflow-hidden">
+            <div
+              key={1}
+              className="flex p-4 flex-col justify-start gap-4 m-4 h-full overflow-hidden"
+            >
               <Image
                 src={"/joca1.jpg"}
                 alt={"joca1"}
@@ -41,7 +44,10 @@ export function HomePage() {
             </div>
           }
           backContent={
-            <div className="flex p-4 flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden">
+            <div
+              key={1}
+              className="flex p-4 flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden"
+            >
               {" "}
               <p className="text-center text-muted-foreground mb-4">
                 Join us for festivals, workshops and gatherings celebrating
@@ -58,7 +64,10 @@ export function HomePage() {
         <FlippingCard
           className="min-h-[425px]"
           frontContent={
-            <div className="flex p-8 flex-col justify-start gap-4 m-4 h-full overflow-hidden">
+            <div
+              key={2}
+              className="flex p-8 flex-col justify-start gap-4 m-4 h-full overflow-hidden"
+            >
               <Image
                 src={"/joca2.jpg"}
                 alt={"joca2"}
@@ -73,7 +82,10 @@ export function HomePage() {
             </div>
           }
           backContent={
-            <div className="flex p-4 flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden">
+            <div
+              key={2}
+              className="flex p-4 flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden"
+            >
               {" "}
               <p className="text-center text-muted-foreground mb-4">
                 Join us in a vibrant and inclusive community that celebrates
@@ -91,7 +103,10 @@ export function HomePage() {
         <FlippingCard
           className="min-h-[425px]"
           frontContent={
-            <div className=" flex p-4 flex-col justify-start gap-4 m-4 h-full overflow-hidden">
+            <div
+              key={3}
+              className=" flex p-4 flex-col justify-start gap-4 m-4 h-full overflow-hidden"
+            >
               <Image
                 src={"/joca3.jpg"}
                 alt={"joca3"}
@@ -108,7 +123,10 @@ export function HomePage() {
             </div>
           }
           backContent={
-            <div className="flex p-4 flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden">
+            <div
+              key={3}
+              className="flex p-4 flex-col items-center justify-center gap-4 mt-4 h-full overflow-hidden"
+            >
               {" "}
               <p className="text-center text-muted-foreground mb-4">
                 Voting rights, exclusive events, and more for active members
