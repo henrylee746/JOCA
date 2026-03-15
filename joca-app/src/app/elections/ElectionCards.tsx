@@ -49,7 +49,7 @@ export const ElectionCards = () => {
   }, [query, activeCategory, data]);
 
   // Show loading state until hydration is complete
-  if (!isMounted || isPending) return <Loading />;
+  if (!isMounted || (isPending && !session)) return <Loading />;
 
   if (!session?.user) return <NotLoggedIn />;
 

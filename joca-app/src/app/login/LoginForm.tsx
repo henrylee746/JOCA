@@ -83,7 +83,7 @@ export const LoginForm = () => {
     );
   }
 
-  if (!isMounted || isPending) return <Loading />;
+  if (!isMounted || (isPending && !session)) return <Loading />;
 
   if (session?.user) return <AlreadyLoggedIn />;
 
