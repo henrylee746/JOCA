@@ -168,7 +168,7 @@ export const AccountPageComponent = () => {
     }
   };
 
-  if (!isMounted || isPending) {
+  if (!isMounted || (isPending && !session)) {
     return (
       <div className="container mx-auto p-8 flex flex-col items-center justify-center gap-4">
         <Loader />

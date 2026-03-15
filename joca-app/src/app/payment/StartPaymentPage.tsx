@@ -35,7 +35,7 @@ export const StartPaymentPage = () => {
     }
   };
 
-  if (!isMounted || isPending) return <Loading />;
+  if (!isMounted || (isPending && !session)) return <Loading />;
 
   if (!session?.user) return <NotLoggedIn />;
 

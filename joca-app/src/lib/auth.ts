@@ -84,12 +84,12 @@ export const auth = betterAuth({
     expiresIn: 600, //10 minutes
   },
   /* Rate Limiting:
-  User cannot make more than 10 requests per minute to the API
+  User cannot make more than 100 requests per minute to the API
   Prevents spam during signup/login/verification email resend
   */
   rateLimit: {
     enabled: true,
-    max: 30, //max number of requests per window
+    max: 100, //max number of requests per window
     window: 60, //window in seconds
   },
   plugins: [
