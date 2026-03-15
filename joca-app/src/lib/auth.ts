@@ -60,7 +60,8 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: !isDev,
+    requireEmailVerification:
+      process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true",
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
@@ -78,7 +79,7 @@ export const auth = betterAuth({
         throw new Error("Failed to send verification email");
       }
     },
-    sendOnSignUp: !isDev,
+    sendOnSignUp: process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true",
     autoSignInAfterVerification: true,
     expiresIn: 600, //10 minutes
   },
