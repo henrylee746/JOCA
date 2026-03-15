@@ -12,7 +12,10 @@ export default async function PaymentPage() {
 
   if (!session?.user) redirect("/login");
 
-  if (!session?.user.emailVerified && process.env.NODE_ENV !== "development")
+  if (
+    !session?.user.emailVerified &&
+    process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true"
+  )
     return <EmailNotVerified />;
 
   // "active" covers the grace period (Stripe keeps status active until periodEnd even after cancellation).

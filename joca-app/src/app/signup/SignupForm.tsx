@@ -87,7 +87,7 @@ export const SignupForm = () => {
         onSuccess: () => {
           setIsLoading(false);
           toast.success("Account created!");
-          if (process.env.NODE_ENV === "development") {
+          if (process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION === "true") {
             router.push("/payment");
           } else {
             setIsEmailVerificationPageVisible(true);
@@ -107,7 +107,7 @@ export const SignupForm = () => {
 
   if (
     isEmailVerificationPageVisible &&
-    process.env.NODE_ENV !== "development"
+    process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true"
   ) {
     return (
       <EmailVerificationPage
