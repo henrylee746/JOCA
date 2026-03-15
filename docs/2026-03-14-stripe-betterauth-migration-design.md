@@ -27,6 +27,7 @@ Migrate from a manual Stripe integration (custom webhook handler, `hasPaid` bool
 ## Section 1: Database & Schema
 
 **Changes to `prisma/schema.prisma`:**
+
 - Remove `hasPaid Boolean @default(false)` from the `User` model
 - Add a `Subscription` model with fields required by the BetterAuth Stripe plugin:
 
@@ -59,8 +60,9 @@ model Subscription {
 - `stripeCustomerId` on `User` remains (already present)
 
 **Migration command:**
+
 ```bash
-pnpm prisma migrate dev --name add-subscription-remove-haspaid
+bun prisma migrate dev --name add-subscription-remove-haspaid
 ```
 
 ---
@@ -70,6 +72,7 @@ pnpm prisma migrate dev --name add-subscription-remove-haspaid
 Two changes required:
 
 **1. Remove `hasPaid` from `additionalFields`** - this block must be deleted in full:
+
 ```typescript
 // DELETE THIS:
 additionalFields: {
@@ -96,7 +99,7 @@ stripe({
       },
     ],
   },
-})
+});
 ```
 
 `lookupKey` is used instead of `priceId` so admins can update the membership price in the Stripe Dashboard without a code change or redeploy - just reassign the `"membership"` lookup key to the new price. `createCustomerOnSignUp` is intentionally omitted: enabling it causes duplicate Stripe customers (one on signup, one at checkout). The Stripe customer is created lazily at checkout and linked to the user via the authenticated session.
@@ -179,15 +182,18 @@ const handlePayment = async () => {
 BetterAuth automatically exposes the webhook at `/api/auth/stripe/webhook`. No code needed.
 
 **Update Stripe Dashboard webhook URL:**
+
 - Old: `https://<domain>/api/webhooks/stripe`
 - New: `https://<domain>/api/auth/stripe/webhook`
 
 **Update local dev forwarding:**
+
 ```bash
 stripe listen --forward-to localhost:3000/api/auth/stripe/webhook
 ```
 
 **Required Stripe events:**
+
 - `checkout.session.completed`
 - `customer.subscription.created`
 - `customer.subscription.updated`
@@ -226,6 +232,7 @@ Replace `checkIfHasPaid` call with subscription check. Redirect to `/payment/suc
 Replace `checkIfHasPaid` call with subscription check. The correct post-migration condition: `if (hasActiveSubscription) redirect("/payment/success")` - redirect away from the cancel page if the user already has an active subscription. (Note: the current code has this condition backwards - `if (!hasPaid) redirect("/payment/success")` - which is a pre-existing bug; the migration should fix it to the correct logic.)
 
 **`src/app/payment/success/page.tsx`:**
+
 - Remove the `checkIfHasPaid` import and manual Stripe session retrieval (`stripe.checkout.sessions.retrieve`)
 - Remove the `searchParams` prop and `session_id` handling entirely (the plugin's `successUrl` does not append `session_id`)
 - Replace verification logic with the subscription check above
@@ -235,21 +242,21 @@ Replace `checkIfHasPaid` call with subscription check. The correct post-migratio
 
 ## Files Changed Summary
 
-| File | Action |
-|------|--------|
-| `prisma/schema.prisma` | Remove `hasPaid`, add `Subscription` model |
-| `src/lib/auth.ts` | Remove `additionalFields.hasPaid`; add `subscription` config to stripe plugin |
-| `src/lib/auth-client.ts` | Export `subscription` from destructured client |
-| `src/lib/auth.types.ts` | Remove `hasPaid` from `CustomUser` |
-| `src/lib/checkout.ts` | Delete |
-| `src/lib/actions.ts` | Delete `checkIfHasPaid` function |
-| `src/app/api/webhooks/stripe/route.ts` | Delete |
-| `src/app/payment/StartPaymentPage.tsx` | Replace server action with `subscription.upgrade()` |
-| `src/app/payment/page.tsx` | Replace `checkIfHasPaid` with subscription query |
-| `src/app/payment/cancel/page.tsx` | Replace `checkIfHasPaid` with subscription query |
-| `src/app/payment/success/page.tsx` | Replace manual verification + `session_id` handling with subscription query |
-| `src/app/elections/page.tsx` | Replace `hasPaid` query with subscription query |
-| `joca-app/CLAUDE.local.md` | Update Payment Flow section to reflect new plugin-based flow |
+| File                                   | Action                                                                        |
+| -------------------------------------- | ----------------------------------------------------------------------------- |
+| `prisma/schema.prisma`                 | Remove `hasPaid`, add `Subscription` model                                    |
+| `src/lib/auth.ts`                      | Remove `additionalFields.hasPaid`; add `subscription` config to stripe plugin |
+| `src/lib/auth-client.ts`               | Export `subscription` from destructured client                                |
+| `src/lib/auth.types.ts`                | Remove `hasPaid` from `CustomUser`                                            |
+| `src/lib/checkout.ts`                  | Delete                                                                        |
+| `src/lib/actions.ts`                   | Delete `checkIfHasPaid` function                                              |
+| `src/app/api/webhooks/stripe/route.ts` | Delete                                                                        |
+| `src/app/payment/StartPaymentPage.tsx` | Replace server action with `subscription.upgrade()`                           |
+| `src/app/payment/page.tsx`             | Replace `checkIfHasPaid` with subscription query                              |
+| `src/app/payment/cancel/page.tsx`      | Replace `checkIfHasPaid` with subscription query                              |
+| `src/app/payment/success/page.tsx`     | Replace manual verification + `session_id` handling with subscription query   |
+| `src/app/elections/page.tsx`           | Replace `hasPaid` query with subscription query                               |
+| `joca-app/CLAUDE.local.md`             | Update Payment Flow section to reflect new plugin-based flow                  |
 
 ---
 
