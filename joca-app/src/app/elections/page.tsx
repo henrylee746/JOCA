@@ -13,7 +13,10 @@ export default async function ElectionsPage() {
 
   if (!session?.user) return <NotLoggedIn />;
 
-  if (!session?.user.emailVerified && process.env.NODE_ENV !== "development")
+  if (
+    !session?.user.emailVerified &&
+    process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true"
+  )
     return <EmailNotVerified />;
 
   /*Use a direct prisma query to bypass the 60s cookie cache on session data*/

@@ -64,7 +64,7 @@ export const EmailVerificationPage = ({
     }
   };
 
-  if (session?.user?.emailVerified && process.env.NODE_ENV !== "development") {
+  if (session?.user?.emailVerified && process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true") {
     return (
       <div className="text-center text-muted-foreground flex flex-col items-center justify-center gap-4">
         Email verified already.
