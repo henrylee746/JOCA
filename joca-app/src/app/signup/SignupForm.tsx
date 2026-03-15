@@ -101,7 +101,7 @@ export const SignupForm = () => {
     );
   }
 
-  if (!isMounted || (isPending && !session)) return <Loading />;
+  if (!isMounted || (isPending && session)) return <Loading />;
 
   if (session?.user) return <AlreadyLoggedIn />;
 
