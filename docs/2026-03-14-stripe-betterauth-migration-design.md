@@ -20,7 +20,7 @@ Migrate from a manual Stripe integration (custom webhook handler, `hasPaid` bool
 - Multiple membership tiers (one plan: "membership")
 - Organization billing
 - Trial periods
-- Billing portal UI
+- ~~Billing portal UI~~ (added post-migration - see Post-Migration Additions)
 
 ---
 
@@ -87,18 +87,19 @@ additionalFields: {
 stripe({
   stripeClient,
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  createCustomerOnSignUp: true,
   subscription: {
     enabled: true,
     plans: [
       {
         name: "membership",
-        priceId: process.env.STRIPE_PRICE_ID!,
+        lookupKey: "membership",
       },
     ],
   },
 })
 ```
+
+`lookupKey` is used instead of `priceId` so admins can update the membership price in the Stripe Dashboard without a code change or redeploy - just reassign the `"membership"` lookup key to the new price. `createCustomerOnSignUp` is intentionally omitted: enabling it causes duplicate Stripe customers (one on signup, one at checkout). The Stripe customer is created lazily at checkout and linked to the user via the authenticated session.
 
 The plugin handles webhook routing, signature verification, and subscription lifecycle internally. No other changes needed.
 
@@ -252,6 +253,22 @@ Replace `checkIfHasPaid` call with subscription check. The correct post-migratio
 
 ---
 
+## Post-Migration Additions
+
+The following were discovered and added after the initial migration:
+
+**Account deletion billing fix:** Added `beforeDelete` hook to `auth.ts` `deleteUser` config. Cancels the user's active Stripe subscription and deletes their subscription record before the user row is removed - prevents continued billing after account deletion. The `delete()` call is guarded by `if (sub)` so users who never paid can still delete their account without a P2025 error. Direct DB deletions bypass this hook; cancel the Stripe subscription manually in the Stripe Dashboard in that case.
+
+**Subscription uniqueness:** Added `@@unique([referenceId])` to the `Subscription` model. Enforces one subscription per user at the DB level. Also replaced `findFirst`/`deleteMany` in the `beforeDelete` hook with `findUnique`/`delete`. The unique constraint is applied in migration `20260314220000` via `CREATE UNIQUE INDEX IF NOT EXISTS`.
+
+**Migration order fix:** Migration `20260314215529_add_subscription_referenceid_index` was out of order - it referenced the `subscription` table before it was created by `20260314220000`. The index migration was made a no-op; the unique index creation was moved into `20260314220000` using `CREATE UNIQUE INDEX IF NOT EXISTS` (safe for existing DBs where the constraint was already applied via `db push`).
+
+**STRIPE_WEBHOOK_SECRET dev guard:** The startup guard for `STRIPE_WEBHOOK_SECRET` is now dev-aware - `isDev` is declared before the guard and the check is wrapped with `!isDev`, matching the same pattern used for `RESEND_API_KEY`. Developers running locally without the webhook secret no longer get a startup crash.
+
+**Billing portal:** Added `subscription.billingPortal()` call in `Header.tsx` under the user dropdown ("Manage membership" item). Uses `onSelect` directly on `DropdownMenuItem` (no `<Link>` wrapper needed - the plugin handles the redirect internally). Wrapped in try/catch - unpaid users (no Stripe customer) see a toast error rather than a silent failure. No code changes required when switching to live mode; configure the portal separately in the live mode Stripe Dashboard.
+
+---
+
 ## Environment Variables
 
-No new variables required. `STRIPE_PRICE_ID` moves from `checkout.ts` to `auth.ts` subscription plan config (already referenced there via `process.env.STRIPE_PRICE_ID`).
+`STRIPE_PRICE_ID` is no longer needed - replaced by Stripe lookup keys. Remove it from `.env`.
