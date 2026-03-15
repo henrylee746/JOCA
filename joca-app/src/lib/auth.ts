@@ -1,10 +1,18 @@
 import { betterAuth } from "better-auth";
+import { stripe } from "@better-auth/stripe";
+import Stripe from "stripe";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
 
+const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
 const isDev = process.env.NODE_ENV === "development";
+
+if (!isDev && !process.env.STRIPE_WEBHOOK_SECRET) {
+  throw new Error("STRIPE_WEBHOOK_SECRET environment variable is not set.");
+}
 
 const resendApiKey = process.env.RESEND_API_KEY;
 if (!isDev && !resendApiKey) {
@@ -21,12 +29,24 @@ export const auth = betterAuth({
   user: {
     deleteUser: {
       enabled: true,
-    },
-    additionalFields: {
-      hasPaid: {
-        type: "boolean",
-        defaultValue: false,
-        required: false,
+      beforeDelete: async (user) => {
+        // Cancel active Stripe subscription before deleting the user,
+        // otherwise Stripe will continue billing the card indefinitely.
+        const sub = await prisma.subscription.findUnique({
+          where: { referenceId: user.id },
+          select: { stripeSubscriptionId: true, status: true },
+        });
+        if (sub?.status === "active" && sub?.stripeSubscriptionId) {
+          await stripeClient.subscriptions.cancel(sub.stripeSubscriptionId);
+        }
+        // Clean up subscription record - no FK cascade since referenceId
+        // has no @relation to User.
+        //Add check to prevent throwing error if it doesn't exist
+        if (sub) {
+          await prisma.subscription.delete({
+            where: { referenceId: user.id },
+          });
+        }
       },
     },
   },
@@ -71,5 +91,20 @@ export const auth = betterAuth({
     max: 30, //max number of requests per window
     window: 60, //window in seconds
   },
+  plugins: [
+    stripe({
+      stripeClient,
+      stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
+      subscription: {
+        enabled: true,
+        plans: [
+          {
+            name: "membership",
+            lookupKey: "membership",
+          },
+        ],
+      },
+    }),
+  ],
   trustedOrigins: [process.env.BETTER_AUTH_URL || "http://localhost:3000"],
 });

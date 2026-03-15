@@ -10,10 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, signOut, subscription } from "@/lib/auth-client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, CreditCard, Bell, LogOut } from "lucide-react";
+import { toast } from "sonner";
 
 const Header = () => {
   const { data: session, isPending } = useSession();
@@ -23,6 +24,25 @@ const Header = () => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const openBillingPortal = async () => {
+    await subscription.billingPortal(
+      {
+        locale: "auto",
+        referenceId: session?.user?.id,
+        customerType: "user",
+        returnUrl: "/",
+        disableRedirect: false,
+      },
+      {
+        onError: () => {
+          toast.error(
+            "No active membership found. Please purchase a membership first.",
+          );
+        },
+      },
+    );
+  };
 
   const handleLogout = async () => {
     try {
@@ -126,15 +146,12 @@ const Header = () => {
                   Account
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                {/* // TODO: Change to the actual billing URL (on test link right now) */}
-                <Link
-                  href={`${process.env.STRIPE_BILLING_URL}`}
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <CreditCard className="h-4 w-4" />
-                  Manage membership
-                </Link>
+              <DropdownMenuItem
+                onSelect={openBillingPortal}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <CreditCard className="h-4 w-4" />
+                Manage membership
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
