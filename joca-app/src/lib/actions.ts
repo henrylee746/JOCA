@@ -1,6 +1,6 @@
 "use server";
 
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma } from "../../prisma/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import { Member } from "@/lib/types";
 import { CREATE_MEMBER, GET_CANDIDATE, UPDATE_CANDIDATE } from "./queries";
@@ -105,7 +105,7 @@ export async function voteForCandidate(
     if (createdVote) {
       await prisma.vote
         .delete({ where: { id: createdVote.id } })
-        .catch((rollbackError) => {
+        .catch((rollbackError: unknown) => {
           // Log so the orphaned vote is visible in server logs and can be cleaned up manually.
           console.error(
             "Rollback failed - vote record orphaned:",
