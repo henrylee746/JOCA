@@ -51,9 +51,9 @@ next-env.d.ts
 CLAUDE.local.md
 .claude
 
-
 #Playwright
 .playwright-mcp/
 
-# Claude local instructions
-CLAUDE.local.md
+#Prisma
+prisma/seed.ts
+
