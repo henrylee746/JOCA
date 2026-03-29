@@ -2,15 +2,21 @@
 
 import { Prisma } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
+import { Member } from "@/lib/types";
+import { CREATE_MEMBER, GET_CANDIDATE, UPDATE_CANDIDATE } from "./queries";
 
 const STRAPI_GRAPHQL_URL =
   process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
 
-async function strapiRequest<T>(query: string): Promise<T> {
+//Helper function to make requests to the Strapi GraphQL API
+async function strapiRequest<T>(
+  query: string,
+  variables?: Record<string, unknown>,
+): Promise<T> {
   const res = await fetch(STRAPI_GRAPHQL_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query }),
+    body: JSON.stringify({ query, variables }),
     cache: "no-store",
   });
 
@@ -25,6 +31,23 @@ async function strapiRequest<T>(query: string): Promise<T> {
   }
 
   return json.data as T;
+}
+
+export async function createMember(
+  firstName: string,
+  lastName: string,
+  email: string,
+  phoneNumber: string,
+): Promise<Member> {
+  try {
+    const { createMember } = await strapiRequest<{ createMember: Member }>(
+      CREATE_MEMBER,
+      { data: { firstName, lastName, email, phoneNumber } },
+    );
+    return createMember;
+  } catch (error) {
+    throw new Error("Failed to create member, " + error);
+  }
 }
 
 export async function voteForCandidate(
@@ -50,7 +73,8 @@ export async function voteForCandidate(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       /* P2002: Unique constraint violation: When you attempt to create/update a record
       that would result in duplicate entries
-      In this case, the unique constraint is on the combination of userId and electionId
+      In this case, the unique constraint is on the combination of userId and electionId 
+      (voting more than once on the same user)
       */
       error.code === "P2002"
     ) {
@@ -63,28 +87,32 @@ export async function voteForCandidate(
   // so we never base the write on a stale Apollo cache value.
   const { candidate } = await strapiRequest<{
     candidate: { voteCount: number };
-  }>(`query { candidate(documentId: "${candidateId}") { voteCount } }`);
+  }>(GET_CANDIDATE, { documentId: candidateId });
 
   const nextCount = (candidate?.voteCount ?? 0) + 1;
 
   try {
     const { updateCandidate } = await strapiRequest<{
       updateCandidate: { voteCount: number };
-    }>(
-      `mutation {
-        updateCandidate(documentId: "${candidateId}", data: { voteCount: ${nextCount} }) {
-          voteCount
-        }
-      }`,
-    );
+    }>(UPDATE_CANDIDATE, {
+      documentId: candidateId,
+      data: { voteCount: nextCount },
+    });
 
     return { voteCount: updateCandidate.voteCount };
   } catch (error) {
-    // Best-effort rollback: allow user to retry if the Strapi write failed.
+    // Best-effort rollback: delete the DB vote so the user can retry.
     if (createdVote) {
-      await prisma.vote.delete({ where: { id: createdVote.id } }).catch(() => {
-        // ignore
-      });
+      await prisma.vote
+        .delete({ where: { id: createdVote.id } })
+        .catch((rollbackError) => {
+          // Log so the orphaned vote is visible in server logs and can be cleaned up manually.
+          console.error(
+            "Rollback failed - vote record orphaned:",
+            createdVote?.id,
+            rollbackError,
+          );
+        });
     }
     throw error;
   }
