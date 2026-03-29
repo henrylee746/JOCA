@@ -3,12 +3,21 @@
 import { Prisma } from "../../prisma/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import { Member } from "@/lib/types";
-import { CREATE_MEMBER, DELETE_MEMBER, GET_CANDIDATE, GET_MEMBER_BY_EMAIL, UPDATE_CANDIDATE } from "./queries";
+import {
+  CREATE_MEMBER,
+  DELETE_MEMBER,
+  GET_CANDIDATE,
+  GET_MEMBER_BY_EMAIL,
+  UPDATE_CANDIDATE,
+} from "./queries";
 
 const STRAPI_GRAPHQL_URL =
   process.env.NEXT_PUBLIC_STRAPI_GRAPHQL_URL || "http://localhost:1337/graphql";
 
-//Helper function to make requests to the Strapi GraphQL API
+// Generic helper for Strapi GraphQL requests.
+// T represents the shape of json.data - NOT the entity itself.
+// Strapi wraps every response under a key matching the operation name, e.g.:
+//   { "data": { "createMember": { ... } } }
 async function strapiRequest<T>(
   query: string,
   variables?: Record<string, unknown>,
@@ -59,6 +68,8 @@ export async function createMember(
   phoneNumber: string,
 ): Promise<Member> {
   try {
+    // Destructure to unwrap the operation-name key Strapi uses.
+    // json.data arrives as { createMember: Member }, so we pull out createMember
     const { createMember } = await strapiRequest<{ createMember: Member }>(
       CREATE_MEMBER,
       { data: { firstName, lastName, email, phoneNumber } },
