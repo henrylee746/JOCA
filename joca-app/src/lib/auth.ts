@@ -5,6 +5,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { Resend } from "resend";
 import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplate";
 import prisma from "@/lib/prisma";
+import { deleteMemberByEmail } from "@/lib/actions";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -52,6 +53,12 @@ export const auth = betterAuth({
           await prisma.subscription.delete({
             where: { referenceId: user.id },
           });
+        }
+        // Delete corresponding Strapi member record.
+        try {
+          await deleteMemberByEmail(user.email);
+        } catch (error) {
+          console.error("Failed to delete Strapi member:", error);
         }
       },
     },
