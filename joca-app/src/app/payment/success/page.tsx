@@ -11,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
-import { createMember } from "@/lib/actions";
+import { createMember, getMemberByEmail } from "@/lib/actions";
+import { Member } from "@/lib/types";
 
 export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
@@ -22,11 +23,25 @@ export default async function PaymentSuccessPage() {
   });
   const paymentVerified = activeSubscription ? true : false;
 
+  //Console errors here can be found in Vercel logs
   if (paymentVerified) {
+    let existing: Member | null = null;
     try {
-      const [firstName, ...rest] = authSession.user.name.split(" ");
-      const lastName = rest.join(" ");
-      await createMember(firstName, lastName, authSession.user.email, authSession.user.phoneNumber);
+      existing = await getMemberByEmail(authSession.user.email);
+    } catch (error) {
+      console.error(error);
+    }
+    try {
+      if (!existing) {
+        const [firstName, ...rest] = authSession.user.name.split(" ");
+        const lastName = rest.join(" ");
+        await createMember(
+          firstName,
+          lastName,
+          authSession.user.email,
+          authSession.user.phoneNumber,
+        );
+      }
     } catch (error) {
       console.error(error);
     }
