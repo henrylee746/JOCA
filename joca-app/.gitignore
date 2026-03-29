@@ -56,4 +56,5 @@ CLAUDE.local.md
 
 #Prisma
 prisma/seed.ts
+prisma/generated/prisma
 
