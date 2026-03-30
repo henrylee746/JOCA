@@ -31,7 +31,7 @@ export type Member = {
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber?: string;
+  phoneNumber: string;
   user?: User;
   candidate?: Candidate;
 };
@@ -39,13 +39,12 @@ export type Member = {
 export type User = {
   documentId: string;
   email: string;
-  phoneNumber?: string;
+  phoneNumber: string;
   provider?: string;
   password?: string;
   resetPasswordToken?: string;
   confirmationToken?: string;
   confirmed?: boolean;
   blocked?: boolean;
-  //   role: Role; // TODO: We don't have a content type for this yet but I'd guess "Authenticated" | "Public"?
   member?: Member;
 };

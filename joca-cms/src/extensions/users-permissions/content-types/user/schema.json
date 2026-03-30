@@ -71,6 +71,10 @@
       "relation": "oneToOne",
       "target": "api::member.member",
       "inversedBy": "user"
+    },
+    "phoneNumber": {
+      "type": "string",
+      "required": true
     }
   }
 }
