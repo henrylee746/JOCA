@@ -1,8 +1,8 @@
 export type Candidate = {
   documentId: string;
-  member: Member;
+  member?: Member;
   voteCount: number;
-  election: Election;
+  election?: Election;
 };
 
 export type Event = {
@@ -23,7 +23,7 @@ export type Election = {
   category: "Executive" | "Committee" | "Referendum";
   votingDateStart: string; // ISO date (YYYY-MM-DD)
   votingDateEnd: string; // ISO date (YYYY-MM-DD)
-  candidates: Candidate[];
+  candidates?: Candidate[];
 };
 
 export type Member = {
