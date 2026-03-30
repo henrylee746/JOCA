@@ -8,6 +8,7 @@ import { GET_EVENTS } from "@/lib/queries";
 import { EventCard } from "./EventCard";
 import Loading from "../loading";
 import type { Event } from "@/lib/types";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export interface GetEventsData {
   events: Event[];
@@ -72,6 +73,11 @@ export const EventCards = () => {
               ? error.message
               : "Unable to load events. Please try again."}
           </p>
+        ) : filteredEvents?.length === 0 ? (
+          <EmptyState 
+            title="No events found" 
+            description="Try adjusting your search or browse by category"
+          />
         ) : (
           filteredEvents?.map((event: Event) => (
             <EventCard event={event} key={event.documentId} />
