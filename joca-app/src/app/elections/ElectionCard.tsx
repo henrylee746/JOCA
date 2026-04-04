@@ -41,7 +41,6 @@ export const ElectionCard = ({ election }: { election: Election }) => {
   const [selectedCandidate, setSelectedCandidate] =
     React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
-  const [openVoteDialog, setOpenVoteDialog] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
   const [hasVoted, setHasVoted] = React.useState(false);
   const [voteCheckError, setVoteCheckError] = React.useState(false);
@@ -217,7 +216,7 @@ export const ElectionCard = ({ election }: { election: Election }) => {
               >
                 Close
               </Button>
-              <Dialog open={openVoteDialog} onOpenChange={setOpenVoteDialog}>
+              <Dialog>
                 <DialogTrigger asChild>
                   <Button
                     className="cursor-pointer"
@@ -251,13 +250,11 @@ export const ElectionCard = ({ election }: { election: Election }) => {
                     >
                       Submit Vote
                     </Button>
-                    <Button
-                      onClick={() => setOpenVoteDialog(false)}
-                      className="cursor-pointer"
-                      variant="secondary"
-                    >
-                      Cancel
-                    </Button>
+                    <DialogClose asChild>
+                      <Button className="cursor-pointer" variant="secondary">
+                        Cancel
+                      </Button>
+                    </DialogClose>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
