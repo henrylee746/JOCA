@@ -109,12 +109,15 @@ export const auth = betterAuth({
             await prisma.user
               .delete({ where: { id: existing.id } })
               .catch((error) => {
-                // May already be deleted through race condition - safe to try again
-                console.error(
-                  `Failed to delete existing user ${existing.id} for email ${email}:`,
-                  error,
-                );
-                throw error;
+                if (error.code !== "P2025") {
+                  console.error(
+                    "Error deleting existing unverified signup: ",
+                    error,
+                  );
+                  throw error;
+                }
+                // Prisma P2025 - record not found (shallow this error)
+                // Record already deleted by concurrent request - safe to proceed
               });
           }
         }
