@@ -9,7 +9,7 @@ interface Props {
 
 export default async function EmailVerificationPage({ searchParams }: Props) {
   const session = await auth.api.getSession({ headers: await headers() });
-  if (session) redirect("/payment");
+  if (session?.user?.emailVerified) redirect("/payment");
 
   const { name, email } = await searchParams;
 
