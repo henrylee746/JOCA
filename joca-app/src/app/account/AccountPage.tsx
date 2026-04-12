@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -60,16 +60,6 @@ type ProfileValues = z.infer<typeof profileSchema>;
 type PasswordValues = z.infer<typeof passwordSchema>;
 type DeleteValues = z.infer<typeof deleteSchema>;
 
-function splitName(fullName: string | undefined | null) {
-  const name = (fullName || "").trim();
-  if (!name) return { firstName: "", lastName: "" };
-  const parts = name.split(/\s+/);
-  return {
-    firstName: parts[0] || "",
-    lastName: parts.slice(1).join(" ") || "",
-  };
-}
-
 export const AccountPageComponent = () => {
   const router = useRouter();
   const { data: session, isPending } = useSessionReady();
@@ -80,16 +70,11 @@ export const AccountPageComponent = () => {
 
   useEffect(() => setIsMounted(true), []);
 
-  const initialName = useMemo(
-    () => splitName(session?.user?.name),
-    [session?.user?.name],
-  );
-
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
     values: {
-      firstName: initialName.firstName,
-      lastName: initialName.lastName,
+      firstName: session?.user?.firstName ?? "",
+      lastName: session?.user?.lastName ?? "",
     },
   });
 
@@ -113,7 +98,11 @@ export const AccountPageComponent = () => {
     setIsSavingProfile(true);
     try {
       const name = `${values.firstName} ${values.lastName}`.trim();
-      const result = await updateUser({ name });
+      const result = await updateUser({
+        name,
+        firstName: values.firstName,
+        lastName: values.lastName,
+      });
       if (result?.error) {
         toast.error(result.error.message || "Failed to update profile");
         return;
