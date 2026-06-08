@@ -35,10 +35,10 @@ We aim to **preserve and share Jamaican heritage** while fostering collaboration
 | ------------------ | ------------------------------------------------------------- |
 | **Frontend**       | Next.js 16 (App Router) • React • TypeScript • Tailwind CSS   |
 | **Backend/CMS**    | Strapi 5 • GraphQL • Apollo Client                            |
-| **Database**       | PostgreSQL • Prisma ORM                                       |
+| **Database**       | Supabase • Prisma ORM                                         |
 | **Authentication** | Better Auth • Session Management                              |
 | **UI Components**  | shadcn/ui                                                     |
-| **Deployment**     | Vercel (Frontend) • Strapi Cloud (CMS) • Prisma Postgres (DB) |
+| **Deployment**     | Vercel (Frontend) • Strapi Cloud (CMS) • Supabase (DB) |
 
 </div>
 
