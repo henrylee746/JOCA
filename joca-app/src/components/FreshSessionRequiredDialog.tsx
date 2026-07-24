@@ -11,14 +11,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/lib/auth-client";
-import { SESSION_FRESH_AGE_SECONDS } from "@/lib/auth-constants";
+import { formatFreshAgeLabel } from "@/lib/auth-constants";
 
 type FreshSessionRequiredDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-const freshAgeHours = SESSION_FRESH_AGE_SECONDS / 3600;
 
 /**
  * Shown when a sensitive action needs a fresher login.
@@ -43,8 +41,8 @@ export function FreshSessionRequiredDialog({
           <DialogTitle>Sign in again to continue</DialogTitle>
           <DialogDescription>
             For security, password changes and account deletion require a login
-            from the last {freshAgeHours} hours. Your session is still active for
-            browsing — sign in again to unlock these actions.
+            from the last {formatFreshAgeLabel()}. Your session is still active
+            for browsing. Sign in again to unlock these actions.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
