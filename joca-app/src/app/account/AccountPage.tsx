@@ -33,6 +33,11 @@ import {
 } from "@/lib/auth-client";
 import { Loader } from "@/components/ui/loader";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
+import { FreshSessionRequiredDialog } from "@/components/FreshSessionRequiredDialog";
+import {
+  isFreshSessionError,
+  isSessionFresh,
+} from "@/lib/session-freshness";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -67,6 +72,7 @@ export const AccountPageComponent = () => {
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [freshSessionDialogOpen, setFreshSessionDialogOpen] = useState(false);
 
   useEffect(() => setIsMounted(true), []);
 
@@ -94,6 +100,12 @@ export const AccountPageComponent = () => {
     },
   });
 
+  const requireFreshSession = () => {
+    if (isSessionFresh(session)) return true;
+    setFreshSessionDialogOpen(true);
+    return false;
+  };
+
   const onSubmitProfile = async (values: ProfileValues) => {
     setIsSavingProfile(true);
     try {
@@ -116,6 +128,7 @@ export const AccountPageComponent = () => {
   };
 
   const onSubmitPassword = async (values: PasswordValues) => {
+    if (!requireFreshSession()) return;
     setIsSavingPassword(true);
     try {
       const result = await changePassword({
@@ -124,6 +137,10 @@ export const AccountPageComponent = () => {
         revokeOtherSessions: true,
       });
       if (result?.error) {
+        if (isFreshSessionError(result.error)) {
+          setFreshSessionDialogOpen(true);
+          return;
+        }
         toast.error(result.error.message || "Failed to update password");
         return;
       }
@@ -137,10 +154,15 @@ export const AccountPageComponent = () => {
   };
 
   const onSubmitDelete = async (values: DeleteValues) => {
+    if (!requireFreshSession()) return;
     setIsDeleting(true);
     try {
       const result = await deleteUser({ password: values.password });
       if (result?.error) {
+        if (isFreshSessionError(result.error)) {
+          setFreshSessionDialogOpen(true);
+          return;
+        }
         toast.error(result.error.message || "Failed to delete account");
         return;
       }
@@ -167,6 +189,10 @@ export const AccountPageComponent = () => {
 
   return (
     <div className="container mx-auto p-8 max-w-3xl space-y-8">
+      <FreshSessionRequiredDialog
+        open={freshSessionDialogOpen}
+        onOpenChange={setFreshSessionDialogOpen}
+      />
       <header className="space-y-1">
         <h1 className="text-3xl font-bold">Account</h1>
         <p className="text-muted-foreground">

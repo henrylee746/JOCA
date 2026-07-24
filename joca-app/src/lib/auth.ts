@@ -7,6 +7,7 @@ import { EmailVerificationTemplate } from "@/components/EmailVerificationTemplat
 import prisma from "@/lib/prisma";
 import { deleteMemberByEmail } from "@/lib/actions";
 import { createAuthMiddleware } from "better-auth/api";
+import { SESSION_FRESH_AGE_SECONDS } from "@/lib/auth-constants";
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -126,6 +127,9 @@ export const auth = betterAuth({
   },
   session: {
     expiresIn: 36000, //10 hours
+    // Sensitive ops (e.g. password change / account deletion without password)
+    // require a session created within this window.
+    freshAge: SESSION_FRESH_AGE_SECONDS,
     cookieCache: {
       enabled: true,
       maxAge: 60, //1 minute
