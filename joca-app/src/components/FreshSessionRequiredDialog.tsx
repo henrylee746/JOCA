@@ -45,7 +45,7 @@ export function FreshSessionRequiredDialog({
             for browsing. Sign in again to unlock these actions.
           </DialogDescription>
         </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Not now
           </Button>
