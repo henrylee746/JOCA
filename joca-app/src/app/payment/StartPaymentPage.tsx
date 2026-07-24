@@ -41,13 +41,18 @@ export const StartPaymentPage = () => {
     }
     setIsLoading(true);
     try {
-      await subscription.upgrade({
+      const result = await subscription.upgrade({
         plan: selectedPlan,
         successUrl: "/payment/success",
         cancelUrl: "/payment/cancel",
       });
-    } catch (error) {
-      setIsLoading(false);
+      if (result?.error) {
+        toast.error(
+          result.error.message || "Failed to initiate payment. Please try again.",
+        );
+        return;
+      }
+    } catch {
       toast.error("Failed to initiate payment. Please try again.");
     } finally {
       setIsLoading(false);

@@ -9,6 +9,7 @@ import { EmailNotVerified } from "@/components/EmailNotVerified";
 import { getElections, getVotedElectionIds } from "@/lib/strapi";
 import type { Election } from "@/lib/types";
 import Loading from "../loading";
+import { isEmailUnverified } from "@/lib/email-verification";
 
 async function ElectionsList({
   userId,
@@ -38,11 +39,7 @@ export default async function ElectionsPage() {
 
   if (!session?.user) return <NotLoggedIn />;
 
-  if (
-    !session?.user.emailVerified &&
-    process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true"
-  )
-    return <EmailNotVerified />;
+  if (isEmailUnverified(session.user)) return <EmailNotVerified />;
 
   // Start Strapi fetch early so it overlaps with the subscription check
   const electionsPromise = getElections();

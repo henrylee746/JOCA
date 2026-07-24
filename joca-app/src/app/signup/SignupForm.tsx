@@ -99,10 +99,15 @@ export const SignupForm = () => {
         },
         onSuccess: () => {
           setIsLoading(false);
-          toast.success("Account created!");
           if (process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION === "true") {
+            toast.success("Account created!");
             router.push("/payment");
           } else {
+            // Better Auth may return synthetic success for existing emails
+            // (anti-enumeration). Keep messaging honest either way.
+            toast.success(
+              "If this email is available, check your inbox to verify your account.",
+            );
             router.push(
               `/email-verification?name=${encodeURIComponent(values.firstName)}&email=${encodeURIComponent(values.email)}`,
             );

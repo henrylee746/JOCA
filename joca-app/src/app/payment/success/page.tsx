@@ -12,11 +12,14 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { NotLoggedIn } from "@/components/NotLoggedIn";
+import { EmailNotVerified } from "@/components/EmailNotVerified";
 import { createMember, getMemberByEmail } from "@/lib/strapi";
+import { isEmailUnverified } from "@/lib/email-verification";
 
 export default async function PaymentSuccessPage() {
   const authSession = await auth.api.getSession({ headers: await headers() });
   if (!authSession?.user) return <NotLoggedIn />;
+  if (isEmailUnverified(authSession.user)) return <EmailNotVerified />;
 
   const { user } = authSession;
 

@@ -90,7 +90,7 @@ export const EmailVerification = ({
           <p className="text-lg text-primary">Hello {name},</p>
           <p className="text-lg text-center">
             Thank you for signing up for JOCA. A verification email has been
-            sent to your email address. It will expire in 10 minutes.
+            sent to your email address. It will expire in 1 hour.
           </p>
           <p className="text-lg text-center">
             If you need to resend the verification email, please click the

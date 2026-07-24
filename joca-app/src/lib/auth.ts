@@ -54,8 +54,28 @@ export const auth = betterAuth({
           select: { stripeSubscriptionId: true, status: true },
         });
         if (sub) {
-          // Delete the DB row first. If this throws, Stripe is untouched and
-          // both sides remain consistent - the error propagates and aborts deletion.
+          // Cancel Stripe first whenever a live subscription id exists.
+          // Abort account deletion if cancel fails so billing cannot outlive the user.
+          const shouldCancelStripe =
+            Boolean(sub.stripeSubscriptionId) &&
+            sub.status !== "canceled" &&
+            sub.status !== "ended";
+
+          if (shouldCancelStripe && sub.stripeSubscriptionId) {
+            try {
+              await stripeClient.subscriptions.cancel(sub.stripeSubscriptionId);
+            } catch (error) {
+              console.error(
+                `[BILLING ALERT] Stripe cancellation failed for user ${user.id}. ` +
+                  `Aborting account deletion. Stripe subscription ${sub.stripeSubscriptionId}.`,
+                error,
+              );
+              throw new Error(
+                "Unable to cancel your Stripe subscription. Please try again or contact support.",
+              );
+            }
+          }
+
           try {
             await prisma.subscription.delete({
               where: { referenceId: user.id },
@@ -66,22 +86,6 @@ export const auth = betterAuth({
               error,
             );
             throw error;
-          }
-
-          // Cancel Stripe only after the DB row is gone. If Stripe fails here,
-          // the DB is already clean (no phantom active record), so log a billing
-          // alert for manual resolution but do not block account deletion.
-          // Can check the alert in Vercel logs
-          if (sub.status === "active" && sub.stripeSubscriptionId) {
-            try {
-              await stripeClient.subscriptions.cancel(sub.stripeSubscriptionId);
-            } catch (error) {
-              console.error(
-                `[BILLING ALERT] Stripe cancellation failed after DB delete for user ${user.id}. ` +
-                  `Stripe subscription ${sub.stripeSubscriptionId} requires manual cancellation.`,
-                error,
-              );
-            }
           }
         }
         // Delete corresponding Strapi member record.
@@ -169,8 +173,9 @@ export const auth = betterAuth({
       }
     },
     sendOnSignUp: process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true",
+    sendOnSignIn: process.env.NEXT_PUBLIC_SKIP_EMAIL_VERIFICATION !== "true",
     autoSignInAfterVerification: true,
-    expiresIn: 600, //10 minutes
+    expiresIn: 3600, //1 hour
   },
   /* Rate Limiting:
   User cannot make more than 100 requests per minute to the API

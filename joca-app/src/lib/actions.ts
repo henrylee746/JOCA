@@ -4,6 +4,8 @@ import { Prisma } from "../../prisma/generated/prisma/client";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { getElection } from "@/lib/strapi";
+import { isWithinVotingWindow } from "@/lib/utils";
 
 export async function voteForCandidate(
   candidateId: string,
@@ -17,6 +19,22 @@ export async function voteForCandidate(
   });
   if (!activeSubscription)
     throw new Error("An active membership is required to vote.");
+
+  const election = await getElection(electionId);
+  if (!election) throw new Error("Election not found.");
+
+  if (
+    !election.votingDateStart ||
+    !election.votingDateEnd ||
+    !isWithinVotingWindow(election.votingDateStart, election.votingDateEnd)
+  ) {
+    throw new Error("Voting is closed for this election.");
+  }
+
+  const candidateIds = election.candidates?.map((c) => c.documentId) ?? [];
+  if (!candidateIds.includes(candidateId)) {
+    throw new Error("Selected candidate is not part of this election.");
+  }
 
   const userId = session.user.id;
 

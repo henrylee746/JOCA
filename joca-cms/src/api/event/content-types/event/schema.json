@@ -32,7 +32,7 @@
       "required": true,
       "enum": [
         "Culture",
-        "Community ",
+        "Community",
         "Education"
       ]
     },

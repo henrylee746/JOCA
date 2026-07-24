@@ -77,7 +77,23 @@ export const LoginForm = () => {
         },
         onError: (ctx: any) => {
           setIsLoading(false);
-          setError(ctx?.error?.message || "Failed to sign in");
+          const message = ctx?.error?.message || "Failed to sign in";
+          const code = String(ctx?.error?.code ?? "").toUpperCase();
+          const needsVerification =
+            code === "EMAIL_NOT_VERIFIED" ||
+            message.toLowerCase().includes("verif");
+
+          if (needsVerification) {
+            toast.info(
+              "Please verify your email. You can resend the link on the next page.",
+            );
+            router.push(
+              `/email-verification?email=${encodeURIComponent(values.email)}`,
+            );
+            return;
+          }
+
+          setError(message);
         },
       },
     );

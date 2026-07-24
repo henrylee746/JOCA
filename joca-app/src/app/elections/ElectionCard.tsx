@@ -20,7 +20,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { BorderBeam } from "@/components/ui/border-beam";
 import type { Election, Candidate } from "@/lib/types";
@@ -33,6 +32,7 @@ import {
   FieldTitle,
 } from "@/components/ui/field";
 import { toast } from "sonner";
+import { isWithinVotingWindow } from "@/lib/utils";
 
 export const ElectionCard = ({
   election,
@@ -45,12 +45,23 @@ export const ElectionCard = ({
   const [selectedCandidate, setSelectedCandidate] =
     React.useState<Candidate | null>(election.candidates?.[0] ?? null);
   const [open, setOpen] = React.useState(false);
+  const [confirming, setConfirming] = React.useState(false);
   const [voting, setVoting] = React.useState(false);
   const [hasVoted, setHasVoted] = React.useState(initialHasVoted);
+
+  const votingOpen = isWithinVotingWindow(
+    election.votingDateStart,
+    election.votingDateEnd,
+  );
 
   React.useEffect(() => {
     setHasVoted(initialHasVoted);
   }, [initialHasVoted]);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) setConfirming(false);
+  };
 
   const handleVote = async () => {
     if (!selectedCandidate) return;
@@ -60,6 +71,7 @@ export const ElectionCard = ({
         selectedCandidate.documentId,
         election.documentId,
       );
+      setConfirming(false);
       setOpen(false);
       setHasVoted(true);
       router.refresh();
@@ -106,8 +118,7 @@ export const ElectionCard = ({
                 disabled={
                   hasVoted ||
                   (election.candidates?.length ?? 0) < 2 ||
-                  !(new Date(election.votingDateStart) <= new Date()) ||
-                  !(new Date(election.votingDateEnd) >= new Date())
+                  !votingOpen
                 }
               >
                 {hasVoted ? "Vote submitted" : "View details & Vote"}
@@ -128,122 +139,121 @@ export const ElectionCard = ({
           className="from-transparent via-cyan-500 to-transparent"
         />
       </Card>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{election.title}</DialogTitle>
-          </DialogHeader>
-          <DialogDescription>
-            {election.description || "No description available"}{" "}
-          </DialogDescription>
-          <div className="space-y-4">
-            <div className="flex flex-col gap-y-2 text-sm">
-              <span className="text-muted-foreground">
-                Voting window:{" "}
-                {election.votingDateStart && election.votingDateEnd ? (
-                  <span className="text-black dark:text-white ml-2">
-                    <ClientDate date={election.votingDateStart} /> –{" "}
-                    <ClientDate date={election.votingDateEnd} />
-                  </span>
-                ) : (
-                  "See details soon"
-                )}
-              </span>
-            </div>
-
-            {election.candidates && election.candidates.length > 1 && (
-              <section className="space-y-2">
-                <div className="flex items-center gap-2 text-sm font-semibold pt-8 pb-2 border-b border-gray-200 dark:border-gray-800">
-                  <Users className="size-6" />
-                  <span className="text-xl">Candidates</span>
-                </div>
-                <RadioGroup
-                  defaultValue={election.candidates[0]?.documentId ?? null}
-                  onValueChange={(value: string) => {
-                    setSelectedCandidate(
-                      election.candidates?.find(
-                        (candidate: Candidate) =>
-                          candidate.documentId === value,
-                      ) ?? null,
-                    );
-                  }}
+          {confirming ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Submit Vote</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                Are you sure you want to submit your vote for{" "}
+                {selectedCandidate?.member?.firstName ?? "N/A"}{" "}
+                {selectedCandidate?.member?.lastName ?? "N/A"}? This action
+                cannot be undone.
+              </DialogDescription>
+              <DialogFooter>
+                <Button
+                  className="cursor-pointer"
+                  variant="destructive"
+                  onClick={handleVote}
+                  disabled={voting || hasVoted}
                 >
-                  {election.candidates?.map((candidate: Candidate) => (
-                    <div
-                      key={candidate.documentId}
-                      className="flex items-center gap-2"
-                    >
-                      <FieldLabel htmlFor={candidate.documentId}>
-                        <Field orientation="horizontal">
-                          <FieldContent>
-                            <FieldTitle>
-                              {candidate.member?.firstName ?? "N/A"}{" "}
-                              {candidate.member?.lastName ?? "N/A"}
-                            </FieldTitle>
+                  {voting ? "Submitting..." : "Submit Vote"}
+                </Button>
+                <Button
+                  className="cursor-pointer"
+                  variant="secondary"
+                  onClick={() => setConfirming(false)}
+                  disabled={voting}
+                >
+                  Back
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>{election.title}</DialogTitle>
+              </DialogHeader>
+              <DialogDescription>
+                {election.description || "No description available"}{" "}
+              </DialogDescription>
+              <div className="space-y-4">
+                <div className="flex flex-col gap-y-2 text-sm">
+                  <span className="text-muted-foreground">
+                    Voting window:{" "}
+                    {election.votingDateStart && election.votingDateEnd ? (
+                      <span className="text-black dark:text-white ml-2">
+                        <ClientDate date={election.votingDateStart} /> –{" "}
+                        <ClientDate date={election.votingDateEnd} />
+                      </span>
+                    ) : (
+                      "See details soon"
+                    )}
+                  </span>
+                </div>
 
-                            <RadioGroupItem
-                              value={candidate.documentId}
-                              id={candidate.documentId}
-                              className="text-black dark:text-white p-2"
-                            />
-                          </FieldContent>
-                        </Field>
-                      </FieldLabel>
+                {election.candidates && election.candidates.length > 1 && (
+                  <section className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-semibold pt-8 pb-2 border-b border-gray-200 dark:border-gray-800">
+                      <Users className="size-6" />
+                      <span className="text-xl">Candidates</span>
                     </div>
-                  ))}
-                </RadioGroup>
-              </section>
-            )}
-            <footer className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setOpen(false)}
-                className="cursor-pointer"
-              >
-                Close
-              </Button>
-              <Dialog>
-                <DialogTrigger asChild>
+                    <RadioGroup
+                      defaultValue={election.candidates[0]?.documentId ?? null}
+                      onValueChange={(value: string) => {
+                        setSelectedCandidate(
+                          election.candidates?.find(
+                            (candidate: Candidate) =>
+                              candidate.documentId === value,
+                          ) ?? null,
+                        );
+                      }}
+                    >
+                      {election.candidates?.map((candidate: Candidate) => (
+                        <div
+                          key={candidate.documentId}
+                          className="flex items-center gap-2"
+                        >
+                          <FieldLabel htmlFor={candidate.documentId}>
+                            <Field orientation="horizontal">
+                              <FieldContent>
+                                <FieldTitle>
+                                  {candidate.member?.firstName ?? "N/A"}{" "}
+                                  {candidate.member?.lastName ?? "N/A"}
+                                </FieldTitle>
+
+                                <RadioGroupItem
+                                  value={candidate.documentId}
+                                  id={candidate.documentId}
+                                  className="text-black dark:text-white p-2"
+                                />
+                              </FieldContent>
+                            </Field>
+                          </FieldLabel>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </section>
+                )}
+                <footer className="flex justify-end gap-2">
+                  <DialogClose asChild>
+                    <Button variant="outline" className="cursor-pointer">
+                      Close
+                    </Button>
+                  </DialogClose>
                   <Button
                     className="cursor-pointer"
-                    disabled={hasVoted || voting}
+                    disabled={hasVoted || voting || !votingOpen}
+                    onClick={() => setConfirming(true)}
                   >
-                    {hasVoted
-                      ? "Vote submitted"
-                      : voting
-                        ? "Submitting..."
-                        : "Vote"}
+                    {hasVoted ? "Vote submitted" : "Vote"}
                   </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Submit Vote</DialogTitle>
-                  </DialogHeader>
-                  <DialogDescription>
-                    Are you sure you want to submit your vote for{" "}
-                    {selectedCandidate?.member?.firstName ?? "N/A"}{" "}
-                    {selectedCandidate?.member?.lastName ?? "N/A"}? This action
-                    cannot be undone.
-                  </DialogDescription>
-                  <DialogFooter>
-                    <Button
-                      className="cursor-pointer"
-                      variant="destructive"
-                      onClick={handleVote}
-                      disabled={voting || hasVoted}
-                    >
-                      Submit Vote
-                    </Button>
-                    <DialogClose asChild>
-                      <Button className="cursor-pointer" variant="secondary">
-                        Cancel
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </footer>
-          </div>
+                </footer>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </>

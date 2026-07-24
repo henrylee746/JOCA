@@ -524,7 +524,7 @@ export interface ApiEventEvent extends Struct.CollectionTypeSchema {
   };
   attributes: {
     category: Schema.Attribute.Enumeration<
-      ['Culture', 'Community ', 'Education']
+      ['Culture', 'Community', 'Education']
     > &
       Schema.Attribute.Required;
     createdAt: Schema.Attribute.DateTime;
@@ -553,7 +553,7 @@ export interface ApiMemberMember extends Struct.CollectionTypeSchema {
     singularName: 'member';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     candidate: Schema.Attribute.Relation<

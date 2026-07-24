@@ -3,9 +3,11 @@ import type { Election, Event, Member } from "@/lib/types";
 import {
   CREATE_MEMBER,
   DELETE_MEMBER,
+  GET_ELECTION,
   GET_ELECTIONS,
   GET_EVENTS,
   GET_MEMBER_BY_EMAIL,
+  GET_MEMBER_BY_EMAIL_NO_STATUS,
 } from "./queries";
 
 const STRAPI_GRAPHQL_URL =
@@ -61,6 +63,20 @@ export async function getElections(): Promise<Election[]> {
   }
 }
 
+export async function getElection(
+  documentId: string,
+): Promise<Election | null> {
+  try {
+    const { election } = await strapiRequest<{ election: Election | null }>(
+      GET_ELECTION,
+      { documentId },
+    );
+    return election ?? null;
+  } catch (error) {
+    throw new Error("Failed to get election, " + error);
+  }
+}
+
 export async function getVotedElectionIds(
   electionIds: string[],
   userId: string,
@@ -78,15 +94,44 @@ export async function getVotedElectionIds(
   return votes.map((vote) => vote.electionId);
 }
 
-export async function getMemberByEmail(email: string): Promise<Member | null> {
-  try {
+async function findMemberByEmail(
+  email: string,
+  status?: "PUBLISHED" | "DRAFT",
+): Promise<Member | null> {
+  if (status) {
     const { members } = await strapiRequest<{ members: Member[] }>(
       GET_MEMBER_BY_EMAIL,
-      { email },
+      { email, status },
     );
     return members[0] ?? null;
+  }
+
+  const { members } = await strapiRequest<{ members: Member[] }>(
+    GET_MEMBER_BY_EMAIL_NO_STATUS,
+    { email },
+  );
+  return members[0] ?? null;
+}
+
+/**
+ * Resolve a member by email.
+ * Tries published, then draft (orphan drafts from before D&P was disabled),
+ * then a no-status query (Member content type without Draft & Publish).
+ */
+export async function getMemberByEmail(email: string): Promise<Member | null> {
+  try {
+    return (
+      (await findMemberByEmail(email, "PUBLISHED")) ??
+      (await findMemberByEmail(email, "DRAFT")) ??
+      (await findMemberByEmail(email))
+    );
   } catch (error) {
-    throw new Error("Failed to get member, " + error);
+    // After D&P is disabled, status-arg queries may fail — fall back.
+    try {
+      return await findMemberByEmail(email);
+    } catch {
+      throw new Error("Failed to get member, " + error);
+    }
   }
 }
 
