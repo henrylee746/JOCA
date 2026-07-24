@@ -1,7 +1,6 @@
 export type Candidate = {
   documentId: string;
   member?: Member;
-  voteCount: number;
   election?: Election;
 };
 

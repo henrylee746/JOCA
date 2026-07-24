@@ -8,9 +8,7 @@ import { Member } from "@/lib/types";
 import {
   CREATE_MEMBER,
   DELETE_MEMBER,
-  GET_CANDIDATE,
   GET_MEMBER_BY_EMAIL,
-  UPDATE_CANDIDATE,
 } from "./queries";
 
 const STRAPI_GRAPHQL_URL =
@@ -99,16 +97,15 @@ export async function voteForCandidate(
 
   const userId = session.user.id;
 
-  // DB-enforced uniqueness prevents double-votes (and races).
-  let createdVote: { id: string } | null = null;
+  // Single atomic DB write. Unique(userId, electionId) prevents double-votes
+  // and races — no denormalized Strapi voteCount to drift under concurrency.
   try {
-    createdVote = await prisma.vote.create({
+    await prisma.vote.create({
       data: {
         userId,
         electionId,
         candidateId,
       },
-      select: { id: true },
     });
   } catch (error) {
     if (
@@ -125,39 +122,11 @@ export async function voteForCandidate(
     throw error;
   }
 
-  // Fetch the authoritative count from Strapi before incrementing,
-  // so we never base the write on a stale Apollo cache value.
-  const { candidate } = await strapiRequest<{
-    candidate: { voteCount: number };
-  }>(GET_CANDIDATE, { documentId: candidateId });
+  const voteCount = await prisma.vote.count({
+    where: { candidateId },
+  });
 
-  const nextCount = (candidate?.voteCount ?? 0) + 1;
-
-  try {
-    const { updateCandidate } = await strapiRequest<{
-      updateCandidate: { voteCount: number };
-    }>(UPDATE_CANDIDATE, {
-      documentId: candidateId,
-      data: { voteCount: nextCount },
-    });
-
-    return { voteCount: updateCandidate.voteCount };
-  } catch (error) {
-    // Best-effort rollback: delete the DB vote so the user can retry.
-    if (createdVote) {
-      await prisma.vote
-        .delete({ where: { id: createdVote.id } })
-        .catch((rollbackError: unknown) => {
-          // Log so the orphaned vote is visible in server logs and can be cleaned up manually.
-          console.error(
-            "Rollback failed - vote record orphaned:",
-            createdVote?.id,
-            rollbackError,
-          );
-        });
-    }
-    throw error;
-  }
+  return { voteCount };
 }
 
 export async function checkIfVoted(electionId: string): Promise<boolean> {

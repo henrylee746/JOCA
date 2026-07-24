@@ -27,7 +27,6 @@ export const GET_ELECTIONS = gql`
       votingDateEnd
       candidates {
         documentId
-        voteCount
         member {
           firstName
           lastName
@@ -69,13 +68,3 @@ export const DELETE_MEMBER = `
     }
   }
 `;
-
-export const GET_CANDIDATE = `
-  query GetCandidate($documentId: ID!) {
-    candidate(documentId: $documentId) { voteCount }
-  }`;
-
-export const UPDATE_CANDIDATE = `
-  mutation UpdateCandidate($documentId: ID!, $data: CandidateInput!) {
-    updateCandidate(documentId: $documentId, data: $data) { voteCount }
-  }`;
