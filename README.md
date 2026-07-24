@@ -34,7 +34,7 @@ We aim to **preserve and share Jamaican heritage** while fostering collaboration
 | Category           | Technology                                                    |
 | ------------------ | ------------------------------------------------------------- |
 | **Frontend**       | Next.js 16 (App Router) • React • TypeScript • Tailwind CSS   |
-| **Backend/CMS**    | Strapi 5 • GraphQL • Apollo Client                            |
+| **Backend/CMS**    | Strapi 5 • GraphQL                                            |
 | **Database**       | Supabase • Prisma ORM                                         |
 | **Authentication** | Better Auth • Session Management                              |
 | **UI Components**  | shadcn/ui                                                     |
