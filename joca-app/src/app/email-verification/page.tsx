@@ -11,7 +11,14 @@ export default async function EmailVerificationPage({ searchParams }: Props) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (session?.user?.emailVerified) redirect("/payment");
 
-  const { name, email } = await searchParams;
+  const { name: nameParam, email: emailParam } = await searchParams;
 
-  return <EmailVerification name={name ?? ""} email={email ?? ""} />;
+  // Prefer session (logged-in but unverified), fall back to query params (post-signup, no session yet).
+  const name =
+    session?.user?.firstName ?? session?.user?.name ?? nameParam ?? "";
+  const email = session?.user?.email ?? emailParam ?? "";
+
+  if (!email) redirect("/login");
+
+  return <EmailVerification name={name} email={email} />;
 }
